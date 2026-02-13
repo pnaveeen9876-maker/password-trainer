@@ -1,1 +1,2 @@
-g++ password.cpp -o password
+g++ password.cpp -o server
+
