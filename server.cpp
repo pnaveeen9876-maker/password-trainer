@@ -1,6 +1,10 @@
 #include <iostream>
 #include <string>
-#include <winsock2.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -113,9 +117,9 @@ int main()
             "Content-Type: text/html\r\n\r\n" + html;
 
         send(client_socket, response.c_str(), response.length(), 0);
-        closesocket(client_socket);
+        close(client_socket);
     }
 
-    WSACleanup();
     return 0;
 }
+
