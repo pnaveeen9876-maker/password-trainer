@@ -8,22 +8,48 @@
 <h2>Progressive Password Strength Trainer</h2>
 
 <input type="password" id="pass">
+<button onclick="toggle()">Show</button>
 <button onclick="check()">Check</button>
 
 <p id="result"></p>
+<p id="suggestions"></p>
 
 <script>
+
+function toggle() {
+    let input = document.getElementById("pass");
+    if (input.type === "password") {
+        input.type = "text";
+    } else {
+        input.type = "password";
+    }
+}
+
 function check() {
     let p = document.getElementById("pass").value;
 
-    fetch("/analyze?pass=" + p)
+    fetch("/analyze?pass=" + encodeURIComponent(p))
     .then(res => res.json())
     .then(data => {
+
+        let color = "red";
+        if (data.strength === "Medium") color = "orange";
+        if (data.strength === "Strong") color = "green";
+
         document.getElementById("result").innerHTML =
             "Score: " + data.score +
-            "<br>Strength: " + data.strength;
+            "<br><b style='color:" + color + "'>Strength: " + data.strength + "</b>";
+
+        if (data.suggestions.length > 0) {
+            document.getElementById("suggestions").innerHTML =
+                "<b>Suggestions:</b><br>" + data.suggestions.join("<br>");
+        } else {
+            document.getElementById("suggestions").innerHTML =
+                "<b style='color:green'>Excellent Password!</b>";
+        }
     });
 }
+
 </script>
 
 </body>
