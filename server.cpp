@@ -6,16 +6,14 @@
 #include <unistd.h>
 
 int main() {
-    // Create socket
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
         std::cerr << "Socket creation failed\n";
         return 1;
     }
 
-    // Get PORT from environment (Render requirement)
-    int port = 8080;  // default for local testing
-
+    // Get PORT from Render
+    int port = 8080;
     char* env_port = getenv("PORT");
     if (env_port != nullptr) {
         port = std::stoi(env_port);
@@ -26,7 +24,6 @@ int main() {
     server.sin_port = htons(port);
     server.sin_addr.s_addr = INADDR_ANY;
 
-    // Bind socket
     if (bind(server_socket, (sockaddr*)&server, sizeof(server)) < 0) {
         std::cerr << "Bind failed\n";
         return 1;
@@ -43,11 +40,13 @@ int main() {
         const char* response =
 "HTTP/1.1 200 OK\r\n"
 "Content-Type: text/html; charset=UTF-8\r\n\r\n"
+
 "<!DOCTYPE html>"
 "<html>"
 "<head>"
 "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
-"<title>Password Trainer</title>"
+"<title>Password Strength Checker</title>"
+
 "<style>"
 "body {"
 "  margin:0;"
@@ -58,6 +57,7 @@ int main() {
 "  align-items:center;"
 "  height:100vh;"
 "}"
+
 ".card {"
 "  background: rgba(255,255,255,0.1);"
 "  backdrop-filter: blur(15px);"
@@ -65,12 +65,21 @@ int main() {
 "  border-radius:20px;"
 "  text-align:center;"
 "  color:white;"
+"  width:350px;"
 "  box-shadow: 0 8px 32px rgba(0,0,0,0.3);"
 "}"
-"h1 { font-size:32px; margin-bottom:10px; }"
-"p { opacity:0.8; }"
+
+"input {"
+"  width:100%;"
+"  padding:10px;"
+"  margin-top:15px;"
+"  border:none;"
+"  border-radius:10px;"
+"  outline:none;"
+"}"
+
 "button {"
-"  margin-top:20px;"
+"  margin-top:15px;"
 "  padding:10px 20px;"
 "  border:none;"
 "  border-radius:10px;"
@@ -78,19 +87,91 @@ int main() {
 "  color:#764ba2;"
 "  font-weight:bold;"
 "  cursor:pointer;"
+"}"
+
+".bar-container {"
+"  margin-top:15px;"
+"  width:100%;"
+"  height:10px;"
+"  background:rgba(255,255,255,0.3);"
+"  border-radius:10px;"
+"}"
+
+".bar {"
+"  height:10px;"
+"  width:0%;"
+"  border-radius:10px;"
 "  transition:0.3s;"
 "}"
-"button:hover {"
-"  transform: scale(1.1);"
-"}"
+
+"#result { margin-top:10px; font-weight:bold; }"
+"#suggestions { font-size:14px; margin-top:5px; }"
+
 "</style>"
 "</head>"
+
 "<body>"
+
 "<div class='card'>"
-"<h1>🔐 Password Trainer</h1>"
-"<p>Sharpen your password security skills</p>"
-"<button onclick='alert(\"Feature Coming Soon 🚀\")'>Start Training</button>"
+"<h2>🔐 Password Strength Checker</h2>"
+"<input type='password' id='password' placeholder='Enter password'>"
+"<button onclick='checkStrength()'>Check Strength</button>"
+
+"<div class='bar-container'>"
+"<div class='bar' id='strengthBar'></div>"
 "</div>"
+
+"<p id='result'></p>"
+"<p id='suggestions'></p>"
+"</div>"
+
+"<script>"
+"function checkStrength() {"
+"  let password = document.getElementById('password').value;"
+"  let score = 0;"
+"  let suggestions = [];"
+
+"  if (password.length >= 8) score++;"
+"  else suggestions.push('Use at least 8 characters');"
+
+"  if (/[A-Z]/.test(password)) score++;"
+"  else suggestions.push('Add uppercase letters');"
+
+"  if (/[0-9]/.test(password)) score++;"
+"  else suggestions.push('Add numbers');"
+
+"  if (/[^A-Za-z0-9]/.test(password)) score++;"
+"  else suggestions.push('Add special characters');"
+
+"  let strengthText = '';"
+"  let bar = document.getElementById('strengthBar');"
+
+"  if (score <= 1) {"
+"    strengthText = 'Weak';"
+"    bar.style.width = '25%';"
+"    bar.style.background = 'red';"
+"  }"
+"  else if (score == 2 || score == 3) {"
+"    strengthText = 'Medium';"
+"    bar.style.width = '60%';"
+"    bar.style.background = 'orange';"
+"  }"
+"  else {"
+"    strengthText = 'Strong';"
+"    bar.style.width = '100%';"
+"    bar.style.background = 'limegreen';"
+"  }"
+
+"  document.getElementById('result').innerHTML = "
+"    'Strength: ' + strengthText + ' (' + score + '/4)';"
+
+"  document.getElementById('suggestions').innerHTML = "
+"    suggestions.length > 0 ? "
+"    'Suggestions: ' + suggestions.join(', ') : "
+"    'Excellent password!';"
+"}"
+"</script>"
+
 "</body>"
 "</html>";
 
@@ -101,4 +182,3 @@ int main() {
     close(server_socket);
     return 0;
 }
-
