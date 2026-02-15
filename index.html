@@ -1,56 +1,132 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Password Trainer</title>
+    <title>Password Strength Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        input {
+            padding: 10px;
+            width: 250px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #suggestions {
+            margin-top: 10px;
+            color: red;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .checkbox-container {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Progressive Password Strength Trainer</h2>
+    <h2>Password Strength Checker</h2>
 
-<input type="password" id="pass">
-<button onclick="toggle()">Show</button>
-<button onclick="check()">Check</button>
+    <!-- Password Input -->
+    <input type="password" id="password" placeholder="Enter password">
 
-<p id="result"></p>
-<p id="suggestions"></p>
+    <!-- Show/Hide Option -->
+    <div class="checkbox-container">
+        <input type="checkbox" id="showPassword" onclick="togglePassword()">
+        <label for="showPassword">Show Password</label>
+    </div>
 
-<script>
+    <br>
+    <button onclick="checkPassword()">Check Strength</button>
 
-function toggle() {
-    let input = document.getElementById("pass");
-    if (input.type === "password") {
-        input.type = "text";
-    } else {
-        input.type = "password";
-    }
-}
+    <div id="result"></div>
+    <div id="suggestions"></div>
 
-function check() {
-    let p = document.getElementById("pass").value;
-
-    fetch("/analyze?pass=" + encodeURIComponent(p))
-    .then(res => res.json())
-    .then(data => {
-
-        let color = "red";
-        if (data.strength === "Medium") color = "orange";
-        if (data.strength === "Strong") color = "green";
-
-        document.getElementById("result").innerHTML =
-            "Score: " + data.score +
-            "<br><b style='color:" + color + "'>Strength: " + data.strength + "</b>";
-
-        if (data.suggestions.length > 0) {
-            document.getElementById("suggestions").innerHTML =
-                "<b>Suggestions:</b><br>" + data.suggestions.join("<br>");
-        } else {
-            document.getElementById("suggestions").innerHTML =
-                "<b style='color:green'>Excellent Password!</b>";
+    <script>
+        function togglePassword() {
+            var passwordField = document.getElementById("password");
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
         }
-    });
-}
 
-</script>
+        function checkPassword() {
+            var password = document.getElementById("password").value;
+            var score = 0;
+            var suggestions = [];
+
+            // Length check
+            if (password.length >= 8) {
+                score++;
+            } else {
+                suggestions.push("Add at least 8 characters.");
+            }
+
+            // Uppercase check
+            if (/[A-Z]/.test(password)) {
+                score++;
+            } else {
+                suggestions.push("Add uppercase letters.");
+            }
+
+            // Number check
+            if (/[0-9]/.test(password)) {
+                score++;
+            } else {
+                suggestions.push("Add numbers.");
+            }
+
+            // Special character check
+            if (/[!@#$%^&*]/.test(password)) {
+                score++;
+            } else {
+                suggestions.push("Add special characters (!@#$%^&*).");
+            }
+
+            // Strength text
+            var strengthText = "";
+            if (score <= 1) {
+                strengthText = "Weak";
+            } else if (score <= 3) {
+                strengthText = "Medium";
+            } else {
+                strengthText = "Strong";
+            }
+
+            document.getElementById("result").innerHTML =
+                "Score: " + score + "/4 - " + strengthText;
+
+            // Display suggestions as bullet list
+            var suggestionHTML = "";
+
+            if (suggestions.length > 0) {
+                suggestionHTML = "<ul>";
+                for (var i = 0; i < suggestions.length; i++) {
+                    suggestionHTML += "<li>" + suggestions[i] + "</li>";
+                }
+                suggestionHTML += "</ul>";
+            } else {
+                suggestionHTML = "<p style='color:green;'>Great! Your password is strong.</p>";
+            }
+
+            document.getElementById("suggestions").innerHTML = suggestionHTML;
+        }
+    </script>
 
 </body>
 </html>
