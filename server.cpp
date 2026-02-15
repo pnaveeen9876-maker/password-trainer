@@ -1,21 +1,32 @@
 #include <iostream>
 #include <cstring>
+#include <cstdlib>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 
 int main() {
+    // Create socket
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
         std::cerr << "Socket creation failed\n";
         return 1;
     }
 
+    // Get PORT from environment (Render requirement)
+    int port = 8080;  // default for local testing
+
+    char* env_port = getenv("PORT");
+    if (env_port != nullptr) {
+        port = std::stoi(env_port);
+    }
+
     sockaddr_in server{};
     server.sin_family = AF_INET;
-    server.sin_port = htons(8080);
+    server.sin_port = htons(port);
     server.sin_addr.s_addr = INADDR_ANY;
 
+    // Bind socket
     if (bind(server_socket, (sockaddr*)&server, sizeof(server)) < 0) {
         std::cerr << "Bind failed\n";
         return 1;
@@ -23,7 +34,7 @@ int main() {
 
     listen(server_socket, 5);
 
-    std::cout << "Server running on port 8080...\n";
+    std::cout << "Server running on port " << port << "...\n";
 
     while (true) {
         int client_socket = accept(server_socket, nullptr, nullptr);
@@ -83,7 +94,6 @@ int main() {
 "</body>"
 "</html>";
 
-
         send(client_socket, response, strlen(response), 0);
         close(client_socket);
     }
@@ -91,4 +101,3 @@ int main() {
     close(server_socket);
     return 0;
 }
-
