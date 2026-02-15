@@ -2,11 +2,20 @@
 <html>
 <head>
     <title>Password Strength Checker</title>
+
+    <!-- Font Awesome for Eye Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 100px;
+        }
+
+        .password-container {
+            position: relative;
+            display: inline-block;
         }
 
         input {
@@ -15,10 +24,19 @@
             font-size: 16px;
         }
 
+        .eye-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: gray;
+        }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
-            margin-top: 10px;
+            margin-top: 15px;
             cursor: pointer;
         }
 
@@ -29,14 +47,19 @@
         }
 
         #suggestions {
-            margin-top: 10px;
-            color: red;
+            margin-top: 15px;
             text-align: left;
             display: inline-block;
         }
 
-        .checkbox-container {
-            margin-top: 10px;
+        #suggestions ul {
+            color: red;
+            padding-left: 20px;
+            list-style-type: disc; /* Force bullet points */
+        }
+
+        #suggestions li {
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -44,13 +67,9 @@
 
     <h2>Password Strength Checker</h2>
 
-    <!-- Password Input -->
-    <input type="password" id="password" placeholder="Enter password">
-
-    <!-- Show/Hide Option -->
-    <div class="checkbox-container">
-        <input type="checkbox" id="showPassword" onclick="togglePassword()">
-        <label for="showPassword">Show Password</label>
+    <div class="password-container">
+        <input type="password" id="password" placeholder="Enter password">
+        <i class="fa-solid fa-eye eye-icon" onclick="togglePassword()" id="eye"></i>
     </div>
 
     <br>
@@ -62,71 +81,11 @@
     <script>
         function togglePassword() {
             var passwordField = document.getElementById("password");
-            passwordField.type = passwordField.type === "password" ? "text" : "password";
-        }
+            var eyeIcon = document.getElementById("eye");
 
-        function checkPassword() {
-            var password = document.getElementById("password").value;
-            var score = 0;
-            var suggestions = [];
-
-            // Length check
-            if (password.length >= 8) {
-                score++;
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
             } else {
-                suggestions.push("Add at least 8 characters.");
-            }
-
-            // Uppercase check
-            if (/[A-Z]/.test(password)) {
-                score++;
-            } else {
-                suggestions.push("Add uppercase letters.");
-            }
-
-            // Number check
-            if (/[0-9]/.test(password)) {
-                score++;
-            } else {
-                suggestions.push("Add numbers.");
-            }
-
-            // Special character check
-            if (/[!@#$%^&*]/.test(password)) {
-                score++;
-            } else {
-                suggestions.push("Add special characters (!@#$%^&*).");
-            }
-
-            // Strength text
-            var strengthText = "";
-            if (score <= 1) {
-                strengthText = "Weak";
-            } else if (score <= 3) {
-                strengthText = "Medium";
-            } else {
-                strengthText = "Strong";
-            }
-
-            document.getElementById("result").innerHTML =
-                "Score: " + score + "/4 - " + strengthText;
-
-            // Display suggestions as bullet list
-            var suggestionHTML = "";
-
-            if (suggestions.length > 0) {
-                suggestionHTML = "<ul>";
-                for (var i = 0; i < suggestions.length; i++) {
-                    suggestionHTML += "<li>" + suggestions[i] + "</li>";
-                }
-                suggestionHTML += "</ul>";
-            } else {
-                suggestionHTML = "<p style='color:green;'>Great! Your password is strong.</p>";
-            }
-
-            document.getElementById("suggestions").innerHTML = suggestionHTML;
-        }
-    </script>
-
-</body>
-</html>
+                passwor
