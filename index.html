@@ -1,172 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Password Strength Checker</title>
+
+    <!-- Font Awesome (For Eye Icon) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #6a5acd, #483d8b);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 20px;
-            width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 350px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         h2 {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
-        input {
+        .password-container {
+            position: relative;
             width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            font-size: 16px;
-            margin-bottom: 20px;
         }
 
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            background: white;
-            color: #6a5acd;
-            font-weight: bold;
+        .password-container input {
+            width: 100%;
+            padding: 10px 40px 10px 10px;
+            font-size: 16px;
+        }
+
+        .password-container i {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             cursor: pointer;
-            margin-bottom: 20px;
+            color: gray;
+        }
+
+        .strength {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .weak {
+            color: red;
+        }
+
+        .medium {
+            color: orange;
+        }
+
+        .strong {
+            color: green;
         }
 
         .progress-bar {
-            height: 10px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 10px;
+            height: 8px;
+            background: #ddd;
+            margin-top: 10px;
+            border-radius: 5px;
             overflow: hidden;
-            margin-bottom: 15px;
         }
 
         .progress {
             height: 100%;
             width: 0%;
-            background: red;
-            border-radius: 10px;
-            transition: width 0.3s ease;
-        }
-
-        #strengthText {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        #suggestions {
-            text-align: left;
-            margin-top: 10px;
-        }
-
-        #suggestions ul {
-            padding-left: 20px;
-            list-style-type: disc;
-        }
-
-        #suggestions li {
-            margin-bottom: 5px;
+            transition: 0.3s;
         }
     </style>
 </head>
+
 <body>
 
 <div class="container">
-    <h2>🔐 Password Strength Checker</h2>
+    <h2>Password Strength Checker</h2>
 
-    <input type="password" id="password" placeholder="Enter your password">
-
-    <button onclick="checkPassword()">Check Strength</button>
-
-    <div class="progress-bar">
-        <div class="progress" id="progressBar"></div>
+    <div class="password-container">
+        <input type="password" id="password" placeholder="Enter your password">
+        <i class="fa-solid fa-eye" id="togglePassword"></i>
     </div>
 
-    <div id="strengthText"></div>
-    <div id="suggestions"></div>
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="strength" id="strengthText"></div>
 </div>
 
 <script>
-function checkPassword() {
-    var password = document.getElementById("password").value;
-    var score = 0;
-    var suggestions = [];
+    const password = document.getElementById("password");
+    const strengthText = document.getElementById("strengthText");
+    const progress = document.getElementById("progress");
+    const togglePassword = document.getElementById("togglePassword");
 
-    if (password.length >= 8) {
-        score++;
-    } else {
-        suggestions.push("Use at least 8 characters.");
-    }
+    // Show / Hide Password
+    togglePassword.addEventListener("click", function () {
+        const type = password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        this.classList.toggle("fa-eye");
+        this.classList.toggle("fa-eye-slash");
+    });
 
-    if (/[A-Z]/.test(password)) {
-        score++;
-    } else {
-        suggestions.push("Add uppercase letters.");
-    }
+    // Strength Checker
+    password.addEventListener("input", function () {
+        const value = password.value;
+        let strength = 0;
 
-    if (/[0-9]/.test(password)) {
-        score++;
-    } else {
-        suggestions.push("Add numbers.");
-    }
+        if (value.length >= 8) strength++;
+        if (/[A-Z]/.test(value)) strength++;
+        if (/[0-9]/.test(value)) strength++;
+        if (/[^A-Za-z0-9]/.test(value)) strength++;
 
-    if (/[!@#$%^&*]/.test(password)) {
-        score++;
-    } else {
-        suggestions.push("Add special characters (!@#$%^&*).");
-    }
-
-    var strength = "";
-    var color = "";
-    var width = (score / 4) * 100;
-
-    if (score <= 1) {
-        strength = "Weak";
-        color = "red";
-    } else if (score <= 3) {
-        strength = "Medium";
-        color = "orange";
-    } else {
-        strength = "Strong";
-        color = "lightgreen";
-    }
-
-    document.getElementById("progressBar").style.width = width + "%";
-    document.getElementById("progressBar").style.background = color;
-
-    document.getElementById("strengthText").innerHTML =
-        "Strength: " + strength + " (" + score + "/4)";
-
-    // 🔥 Bullet list suggestions
-    var suggestionHTML = "";
-
-    if (suggestions.length > 0) {
-        suggestionHTML = "<ul>";
-        for (var i = 0; i < suggestions.length; i++) {
-            suggestionHTML += "<li>" + suggestions[i] + "</li>";
+        if (strength === 0) {
+            strengthText.textContent = "";
+            progress.style.width = "0%";
         }
-        suggestionHTML += "</ul>";
-    } else {
-        suggestionHTML = "<p style='color:lightgreen;'>Great! Your password is strong.</p>";
-    }
-
-    document.getElementById("suggestions").innerHTML = suggestionHTML;
-}
+        else if (strength <= 2) {
+            strengthText.textContent = "Weak Password";
+            strengthText.className = "strength weak";
+            progress.style.width = "33%";
+            progress.style.background = "red";
+        }
+        else if (strength === 3) {
+            strengthText.textContent = "Medium Password";
+            strengthText.className = "strength medium";
+            progress.style.width = "66%";
+            progress.style.background = "orange";
+        }
+        else {
+            strengthText.textContent = "Strong Password";
+            strengthText.className = "strength strong";
+            progress.style.width = "100%";
+            progress.style.background = "green";
+        }
+    });
 </script>
 
 </body>
