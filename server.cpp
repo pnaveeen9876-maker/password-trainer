@@ -62,7 +62,12 @@ int main() {
 
         "button:hover{background:#5a67d8;}"
 
-        ".result{margin-top:20px;font-weight:bold;}"
+        ".bar-container{margin-top:20px;height:10px;background:#ddd;"
+        "border-radius:10px;overflow:hidden;display:none;}"
+
+        ".bar{height:100%;width:0%;transition:0.4s ease;}"
+
+        ".result{margin-top:15px;font-weight:bold;}"
 
         ".suggestions{margin-top:15px;text-align:left;font-size:14px;}"
         "</style>"
@@ -79,6 +84,10 @@ int main() {
 
         "<button onclick='checkPassword()'>Check Strength</button>"
 
+        "<div class='bar-container' id='barContainer'>"
+        "<div class='bar' id='strengthBar'></div>"
+        "</div>"
+
         "<div class='result' id='strengthText'></div>"
         "<div class='suggestions' id='suggestions'></div>"
 
@@ -87,6 +96,8 @@ int main() {
         "<script>"
         "const togglePassword=document.getElementById('togglePassword');"
         "const password=document.getElementById('password');"
+        "const bar=document.getElementById('strengthBar');"
+        "const barContainer=document.getElementById('barContainer');"
 
         "togglePassword.addEventListener('click',function(){"
         "const type=password.type==='password'?'text':'password';"
@@ -104,10 +115,24 @@ int main() {
         "if(/[0-9]/.test(val)){score++;}else{suggestions.push('Add number');}"
         "if(/[^A-Za-z0-9]/.test(val)){score++;}else{suggestions.push('Add special character');}"
 
+        "barContainer.style.display='block';"
+
         "let text='';"
-        "if(score<=1){text='Weak Password';}"
-        "else if(score<=3){text='Medium Password';}"
-        "else{text='Strong Password';}"
+        "if(score<=1){"
+        "text='Weak Password';"
+        "bar.style.width='33%';"
+        "bar.style.background='red';"
+        "}"
+        "else if(score<=3){"
+        "text='Moderate Password';"
+        "bar.style.width='66%';"
+        "bar.style.background='orange';"
+        "}"
+        "else{"
+        "text='Strong Password';"
+        "bar.style.width='100%';"
+        "bar.style.background='green';"
+        "}"
 
         "document.getElementById('strengthText').innerHTML="
         "'Score: '+score+'/4 - '+text;"
